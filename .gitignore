@@ -1,0 +1,11 @@
+### untrack
+tools/convert_texture
+
+### track
+
+### default
+build
+out
+CMakeFiles
+.cache
+

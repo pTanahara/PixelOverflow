@@ -11,7 +11,7 @@ using namespace PixelOverflow;
 namespace PixelOverflow {
     void rasterize_triangle(
             FramebufferHDR& framebuffer,
-            Primitive& tri,
+            const Primitive& tri,
             TileBoundingBox& bb
             ) {
         PrimitiveVertex v0 = tri.v0, v1 = tri.v1, v2 = tri.v2;

@@ -1,8 +1,7 @@
 #pragma once
 
 #include "core/types.hpp"
-#include <cstdint>
-#include <vector>
+#include "mimalloc.h"
 
 
 namespace PixelOverflow {
@@ -16,74 +15,45 @@ namespace PixelOverflow {
         PrimitiveVertex v0, v1, v2;
     };
 
-    struct PrimitivePool {
-        std::vector<Primitive> tri;
+    struct PrimitivePool : public AtomicBuffer<Primitive> {};
 
-        void reserve_all(size_t RESERVE_SIZE) {
-            tri.reserve(RESERVE_SIZE);
-        }
-
-        void clear_all() {
-            tri.clear();
-        }
-
-        Primitive& operator[](int i) { return tri[i]; }
-        const Primitive& operator[](int i) const { return tri[i]; }
-    };
-
-    struct PrimitiveList {
-        std::vector<uint32_t> tri_index;
-
-        void reserve_all(size_t RESERVE_SIZE_PER_TILE) {
-            tri_index.reserve(RESERVE_SIZE_PER_TILE);
-        }
-
-        void clear_all() {
-            tri_index.clear();
-        }
-
-        uint32_t& operator[](int i) { return tri_index[i]; }
-        const uint32_t& operator[](int i) const { return tri_index[i]; }
-    };
+    struct PrimitiveList : public AtomicBuffer<u32> {};
 
     struct PrimitiveBuffer {
         PrimitivePool pool;
-        std::vector<PrimitiveList> opaque;
-        std::vector<PrimitiveList> transparent;
+        PrimitiveList* opaque;
+        PrimitiveList* transparent;
+        size_t num_tiles;
 
-        size_t RESERVE_SIZE;
-        size_t RESERVE_SIZE_PER_TILE;
+        PrimitiveBuffer(size_t NUM_TILES, size_t RESERVE_SIZE, size_t RESERVE_SIZE_PER_TILE_OPAQUE, size_t RESERVE_SIZE_PER_TILE_TRANSPARENT) : pool(RESERVE_SIZE), num_tiles(NUM_TILES) {
+            opaque = static_cast<PrimitiveList*>(mi_malloc(NUM_TILES * sizeof(PrimitiveList)));
+            transparent = static_cast<PrimitiveList*>(mi_malloc(NUM_TILES * sizeof(PrimitiveList)));
 
-        PrimitiveBuffer(size_t NUM_TILES, size_t RESERVE_SIZE, size_t RESERVE_SIZE_PER_TILE) {
-            this->RESERVE_SIZE = RESERVE_SIZE;
-            this->RESERVE_SIZE_PER_TILE = RESERVE_SIZE_PER_TILE;
-
-            resize_num_tiles(NUM_TILES);
+            for (size_t i = 0; i < NUM_TILES; i++) {
+                new(&opaque[i]) PrimitiveList(RESERVE_SIZE_PER_TILE_OPAQUE);
+                new(&transparent[i]) PrimitiveList(RESERVE_SIZE_PER_TILE_TRANSPARENT);
+            }
         }
 
-        void resize_num_tiles(size_t NUM_TILES) {
-            pool.reserve_all(RESERVE_SIZE);
-
-            opaque.resize(NUM_TILES);
-            for (PrimitiveList& t : opaque) {
-                t.reserve_all(RESERVE_SIZE_PER_TILE);
+        ~PrimitiveBuffer() {
+            for (size_t i = 0; i < num_tiles; ++i) {
+                opaque[i].~PrimitiveList();
+                transparent[i].~PrimitiveList();
             }
 
-            transparent.resize(NUM_TILES);
-            for (PrimitiveList& t : transparent) {
-                t.reserve_all(RESERVE_SIZE_PER_TILE);
-            }
+            mi_free(opaque);
+            mi_free(transparent);
         }
 
         void clear_all() {
-            pool.clear_all();
-            
-            for (PrimitiveList& t : opaque) {
-                t.clear_all();
+            pool.clear();
+
+            for (size_t i = 0; i < num_tiles; i++) {
+                opaque[i].clear();
             }
 
-            for (PrimitiveList& t : transparent) {
-                t.clear_all();
+            for (size_t i = 0; i < num_tiles; i++) {
+                transparent[i].clear();
             }
         }
     };

@@ -27,7 +27,8 @@ Engine::Engine() {
         context.engine.height,
         num_tiles,
         context.render.primitive_reserve_size,
-        context.render.primitive_reserve_size_per_tile
+        context.render.primitive_reserve_size_per_tile_opaque,
+        context.render.primitive_reserve_size_per_tile_transparent
     );
 
     if (SDL_Init(SDL_INIT_VIDEO) == false) {
@@ -95,6 +96,8 @@ void Engine::run() {
 
     SDL_FRect src = { 0, (float)height, (float)width, -(float)height }; // altura negativa
 
+    f32 fps = 0.0f;
+
     SDL_Event event;
     while (running) {
         while (SDL_PollEvent(&event)) {
@@ -106,11 +109,14 @@ void Engine::run() {
         }
 
         if (DEBUG) {
+            f32 current_fps = ImGui::GetIO().Framerate;
+            fps = (0.001f * current_fps) + (0.999f * fps);
+
             ImGui_ImplSDL3_NewFrame();
             ImGui::NewFrame();
 
             ImGui::Begin("DEBUG");
-            ImGui::Text("FPS: %.2f", ImGui::GetIO().Framerate);
+            ImGui::Text("FPS: %.2f", fps);
 
             ImGui::End();
             ImGui::Render();

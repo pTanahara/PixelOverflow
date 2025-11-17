@@ -10,14 +10,6 @@
 
 using namespace PixelOverflow;
 
-inline uint32_t float_to_rgba8(float r, float g, float b) {
-    uint8_t ur = static_cast<uint8_t>(std::clamp(r, 0.0f, 1.0f) * 255.0f);
-    uint8_t ug = static_cast<uint8_t>(std::clamp(g, 0.0f, 1.0f) * 255.0f);
-    uint8_t ub = static_cast<uint8_t>(std::clamp(b, 0.0f, 1.0f) * 255.0f);
-
-    return (ur << 24) | (ug << 16) | (ub << 8) | 255;
-}
-
 namespace PixelOverflow {
     void tone_mapping_sse2(FramebufferHDR& framebuffer_hdr, FramebufferLDR& framebuffer_ldr, float exposure) {
         u32 size = framebuffer_hdr.width * framebuffer_hdr.height;

@@ -13,11 +13,11 @@ namespace PixelOverflow {
 
         PrimitiveBuffer tri_buffer;
     public:
-        Renderer(size_t width, size_t height, size_t num_tiles, size_t reserve_size, size_t reserve_size_per_tile) :
+        Renderer(size_t width, size_t height, size_t num_tiles, size_t reserve_size, size_t reserve_size_per_tile_opaque, size_t reserve_size_per_tile_transparent) :
             framebuffer_hdr(width, height),
             framebuffer_ldr(width, height),
             depthbuffer(width, height),
-            tri_buffer(num_tiles, reserve_size, reserve_size_per_tile) {}
+            tri_buffer(num_tiles, reserve_size, reserve_size_per_tile_opaque, reserve_size_per_tile_transparent) {}
         // ~Renderer();
 
         void render_framebuffer();

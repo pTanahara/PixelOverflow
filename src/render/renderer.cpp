@@ -21,6 +21,6 @@ void Renderer::add_test_triangle() {
         {0, 1080, 0, 0, 0, 0, 0, 0}
     };
 
-    tri_buffer.pool[0] = tri;
+    tri_buffer.pool.insert(tri);
 };
 

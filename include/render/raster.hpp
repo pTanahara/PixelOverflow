@@ -9,7 +9,7 @@ namespace PixelOverflow {
     // https://fgiesen.wordpress.com/2013/02/10/optimizing-the-basic-rasterizer/
     void rasterize_triangle(
             FramebufferHDR& framebuffer,
-            Primitive& tri,
+            const Primitive& tri,
             TileBoundingBox& bb
     );
 

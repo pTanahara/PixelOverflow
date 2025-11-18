@@ -9,6 +9,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_subdirectory(third_party/SDL3-3.2.24 EXCLUDE_FROM_ALL)
 add_subdirectory(third_party/imgui-1.92.4)
 add_subdirectory(third_party/mimalloc-3.0.10)
+add_subdirectory(third_party/tinygltf-2.9.7)
 
 # Adiciona os diretórios de include
 include_directories(
